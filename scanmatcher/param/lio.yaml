@@ -1,0 +1,57 @@
+scan_matcher:
+    ros__parameters:
+      global_frame_id: "map"
+      robot_frame_id: "base_link"
+      registration_method: "NDT"
+      ndt_resolution: 2.0
+      ndt_num_threads: 0
+      trans_for_mapupdate: 1.5
+      #vg_size_for_input: 2.5
+      #vg_size_for_input: 2.0
+      #vg_size_for_input: 1.0
+      vg_size_for_input: 0.1
+      vg_size_for_map: 0.1
+      map_publish_period: 100.0
+      num_targeted_cloud: 20
+      set_initial_pose: true
+      initial_pose_x: 0.0
+      initial_pose_y: 0.0
+      initial_pose_z: 0.0
+      initial_pose_qx: 0.0
+      initial_pose_qy: 0.0
+      initial_pose_qz: 0.0
+      initial_pose_qw: 1.0
+      use_imu: true
+      debug_flag: false
+
+imu_preintegration:
+    ros__parameters:
+      imuTopic: "imu_raw"
+      odomTopic: "preintegrated_odom"
+      imuAccNoise: 3.9939570888238808e-03
+      imuGyrNoise: 1.5636343949698187e-03
+      imuAccBiasN: 6.4356659353532566e-05
+      imuGyrBiasN: 3.5640318696367613e-05
+      imuGravity: 9.80511
+      extrinsicTrans: [0.0, 0.0, 0.0] # Now the IMU geometry must be set the same for both imu_preintegration and image_projection...
+      extrinsicRot: [-1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, -1.0]
+      extrinsicRPY: [0.0,  1.0, 0.0,
+                 -1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0]
+
+
+image_projection:
+    ros__parameters:
+      N_SCAN: 16
+      Horizon_SCAN: 1800
+      imuTopic: "imu_raw"
+      odomTopic: "preintegrated_odom"
+      extrinsicTrans: [0.0, 0.0, 0.0] # Now the IMU geometry must be set the same for both imu_preintegration and image_projection...
+      extrinsicRot: [-1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, -1.0]
+      extrinsicRPY: [0.0,  1.0, 0.0,
+                 -1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0]
