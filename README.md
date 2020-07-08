@@ -19,7 +19,7 @@ gtsam install
 sudo apt-get install libtbb-dev
 mkdir ~/workspace && cd ~/workspace
 git clone https://github.com/rsasaki0109/gtsam-4.0.2
-cd gtsam
+cd gtsam-4.0.2
 mkdir -p build && cd build
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
