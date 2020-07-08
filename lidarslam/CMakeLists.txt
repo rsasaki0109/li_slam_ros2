@@ -23,7 +23,6 @@ find_package(scanmatcher REQUIRED)
 find_package(graph_based_slam REQUIRED)
 find_package(lidarslam_msgs REQUIRED)
 find_package(ndt_omp_ros2 REQUIRED)
-find_package(fast_gicp_ros2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenMP)
@@ -78,8 +77,7 @@ ament_target_dependencies(lidarslam
   graph_based_slam
   lidarslam_msgs
   ndt_omp_ros2
-  fast_gicp_ros2
-  )
+)
 
 install(
   DIRECTORY launch param

@@ -67,7 +67,6 @@ extern "C" {
 #include <pclomp/gicp_omp.h>
 #include <pclomp/gicp_omp_impl.hpp>
 
-//#include <fast_gicp/gicp/fast_gicp.hpp>
 
 #include <mutex>
 #include <thread>
