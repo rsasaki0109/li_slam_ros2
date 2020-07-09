@@ -34,7 +34,6 @@ find_package(tf2_eigen REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(lidarslam_msgs REQUIRED)
 find_package(ndt_omp_ros2 REQUIRED)
-find_package(fast_gicp_ros2 REQUIRED)
 find_package(PCL 1.8 REQUIRED)
 find_package(OpenMP)
 find_package(GTSAM REQUIRED)
@@ -72,7 +71,6 @@ ament_target_dependencies(scanmatcher_component
   nav_msgs
   lidarslam_msgs
   ndt_omp_ros2
-  #fast_gicp_ros2
   OpenCV
 )
 

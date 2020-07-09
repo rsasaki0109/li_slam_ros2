@@ -2,7 +2,7 @@ li_slam_ros2
 ====
 ![foxy](https://github.com/rsasaki0109/li_slam_ros2/workflows/foxy/badge.svg)  
 
-This package is a combination of [lidarslam_ros2](https://github.com/rsasaki0109/lidarslam_ros2) and the LIO-SAM IMU composite method.
+This package is a combination of [lidarslam_ros2](https://github.com/rsasaki0109/lidarslam_ros2) and the [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM) IMU composite method.
 
 See LIO-SAM for IMU composites, otherwise see lidarslam_ros2.
 
@@ -18,8 +18,8 @@ gtsam install
 ```
 sudo apt-get install libtbb-dev
 mkdir ~/workspace && cd ~/workspace
-git clone https://github.com/rsasaki0109/gtsam-4.0.2
-cd gtsam-4.0.2
+git clone https://github.com/borglab/gtsam
+cd gtsam
 mkdir -p build && cd build
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
@@ -39,7 +39,7 @@ colcon build
 
 ## Demo
 
-The initialization methods and the optimization pipeline in Lidar Inertial SLAM were heavily derived or taken from [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM).
+The initialization methods and the optimization pipeline in Lidar Inertial SLAM were taken from [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM).
 
 (Note: See the LIO-SAM repository for detailed settings regarding IMU.  
 The other thing to note is that the speed will diverge if the voxel_grid_size is large.  
