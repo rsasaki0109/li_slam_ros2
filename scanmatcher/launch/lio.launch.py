@@ -22,6 +22,13 @@ def generate_launch_description():
         output='screen'
         )
 
+    graphbasedslam = launch_ros.actions.Node(
+        package='graph_based_slam',
+        executable='graph_based_slam_node',
+        parameters=[mapping_param_dir],
+        output='screen'
+        )
+
     tf = launch_ros.actions.Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -53,4 +60,5 @@ def generate_launch_description():
         tf,
         imu_pre,
         img_pro,
+        graphbasedslam,
             ])

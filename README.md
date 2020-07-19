@@ -2,9 +2,19 @@ li_slam_ros2
 ====
 ![foxy](https://github.com/rsasaki0109/li_slam_ros2/workflows/foxy/badge.svg)  
 
+
+
 This package is a combination of [lidarslam_ros2](https://github.com/rsasaki0109/lidarslam_ros2) and the [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM) IMU composite method.
 
 See LIO-SAM for IMU composites, otherwise see lidarslam_ros2.
+
+<img src="./scanmatcher/images/li_slam.png">
+
+Green path: path
+
+Reference(From the LIO-SAM paper)  
+https://github.com/TixiaoShan/LIO-SAM/blob/master/config/doc/paper.pdf
+<img src="./scanmatcher/images/liosam_thesis.png">
 
 ## requirement to build
 You need  [ndt_omp_ros2](https://github.com/rsasaki0109/ndt_omp_ros2) and gtsam for scan-matcher
@@ -50,7 +60,7 @@ The Velodyne VLP-16 was used in this data.
 
 
 ```
-rviz2 -d src/lidarslam_ros2/scanmatcher/rviz/lio.rviz 
+rviz2 -d src/li_slam_ros2/scanmatcher/rviz/lio.rviz 
 ```
 
 ```
@@ -63,7 +73,11 @@ ros2 bag play -s rosbag_v2 casual_walk.bag
 
 <img src="./scanmatcher/images/li_slam.gif">
 
-Yellow path:path, Green path: path by imu 
+Green arrow: pose, Yellow path: path, Green path: path by imu 
+
+<img src="./scanmatcher/images/li_slam.png">
+
+Green path: path
 
 
 <img src="./scanmatcher/images/rosgraph.png">  
