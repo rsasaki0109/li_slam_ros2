@@ -6,9 +6,6 @@ scan_matcher:
       ndt_resolution: 2.0
       ndt_num_threads: 0
       trans_for_mapupdate: 1.5
-      #vg_size_for_input: 2.5
-      #vg_size_for_input: 2.0
-      #vg_size_for_input: 1.0
       vg_size_for_input: 0.1
       vg_size_for_map: 0.1
       map_publish_period: 100.0
@@ -55,3 +52,16 @@ image_projection:
       extrinsicRPY: [0.0,  1.0, 0.0,
                  -1.0, 0.0, 0.0,
                   0.0, 0.0, 1.0]
+
+
+graph_based_slam:
+    ros__parameters:
+      ndt_resolution: 5.0
+      ndt_num_threads: 1
+      voxel_leaf_size: 0.2
+      loop_detection_period: 5000
+      threshold_loop_closure_score: 2.5
+      distance_loop_closure: 100.0
+      range_of_searching_loop_closure: 20.0
+      search_submap_num: 4
+      use_save_map_in_loop: false
