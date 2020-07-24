@@ -34,10 +34,9 @@ find_package(tf2_eigen REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(lidarslam_msgs REQUIRED)
 find_package(ndt_omp_ros2 REQUIRED)
-find_package(PCL 1.8 REQUIRED)
+find_package(PCL REQUIRED)
 find_package(OpenMP)
 find_package(GTSAM REQUIRED)
-
 
 #find_package(liosam_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -78,47 +77,6 @@ target_link_libraries(scanmatcher_component
 ${OpenCV_LIBRARIES} 
 ${PCL_LIBRARIES})
 
-add_executable(imu_preintegration src/imu_preintegration.cpp)
-
-target_link_libraries(imu_preintegration 
-gtsam
-${GTSAM_LIBRARIES}
-${PCL_LIBRARIES})
-
-ament_target_dependencies(imu_preintegration
-  rclcpp 
-  rclcpp_components 
-  tf2_ros 
-  tf2_geometry_msgs 
-  tf2_sensor_msgs 
-  tf2_eigen 
-  geometry_msgs 
-  sensor_msgs
-  nav_msgs
-  #GTSAM
-)
-
-add_executable(image_projection src/image_projection.cpp)
-
-ament_target_dependencies(image_projection
-  rclcpp 
-  rclcpp_components 
-  tf2_ros 
-  tf2_geometry_msgs 
-  tf2_sensor_msgs 
-  tf2_eigen 
-  geometry_msgs 
-  sensor_msgs
-  nav_msgs
-
-  #liosam_msgs
-  PCL
-  OpenCV
-)
-
-target_link_libraries(imu_preintegration 
-${OpenCV_LIBRARIES} 
-${PCL_LIBRARIES})
 
 add_executable(scanmatcher_node
 src/scanmatcher_node.cpp
@@ -133,15 +91,18 @@ ament_target_dependencies(scanmatcher_node
 include_directories(
     include
     ${PCL_INCLUDE_DIRS}
-    ${GTSAM_INCLUDE_DIR}
     ${OpenCV_INCLUDE_DIRS}
 )
 link_directories(
   ${PCL_LIBRARY_DIRS}
-  ${GTSAM_LIBRARY_DIRS}
   ${OpenCV_LIBRARY_DIRS}
 )
 add_definitions(${PCL_DEFINITIONS})
+
+if(GTSAM_FOUND)
+  include_directories(${GTSAM_INCLUDE_DIRS})
+  link_directories(${GTSAM_LIBRARY_DIRS})
+endif()
 
 rclcpp_components_register_nodes(scanmatcher_component 
   "graphslam::ScanMatcherComponent")
@@ -170,15 +131,52 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(TARGETS 
-  imu_preintegration 
-  DESTINATION lib/${PROJECT_NAME}
-)
+if(GTSAM_FOUND)
+  add_executable(imu_preintegration src/imu_preintegration.cpp)
+  target_link_libraries(imu_preintegration 
+  gtsam
+  ${GTSAM_LIBRARIES}
+  ${PCL_LIBRARIES})
+  ament_target_dependencies(imu_preintegration
+    rclcpp 
+    rclcpp_components 
+    tf2_ros 
+    tf2_geometry_msgs 
+    tf2_sensor_msgs 
+    tf2_eigen 
+    geometry_msgs 
+    sensor_msgs
+    nav_msgs
+    #GTSAM
+  )
+  add_executable(image_projection src/image_projection.cpp)
+  ament_target_dependencies(image_projection
+    rclcpp 
+    rclcpp_components 
+    tf2_ros 
+    tf2_geometry_msgs 
+    tf2_sensor_msgs 
+    tf2_eigen 
+    geometry_msgs 
+    sensor_msgs
+    nav_msgs
+    #liosam_msgs
+    PCL
+    OpenCV
+  )
+  target_link_libraries(imu_preintegration 
+  ${OpenCV_LIBRARIES} 
+  ${PCL_LIBRARIES})
 
-install(TARGETS 
-  image_projection
-  DESTINATION lib/${PROJECT_NAME}
-)
+  install(TARGETS 
+    imu_preintegration 
+    DESTINATION lib/${PROJECT_NAME}
+  )
+  install(TARGETS 
+    image_projection
+    DESTINATION lib/${PROJECT_NAME}
+  )
+endif()
 
 ament_export_include_directories(include)
 ament_package()

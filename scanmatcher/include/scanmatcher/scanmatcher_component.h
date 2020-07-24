@@ -75,14 +75,13 @@ extern "C" {
 #include <pcl_conversions/pcl_conversions.h>
 
 
-
 using PointType = pcl::PointXYZI;
-//using PointType = PointXYZIRT; 
+//using PointType = PointXYZIRT;
 
 namespace graphslam
 {
   //class ScanMatcherComponent : public ParamServer
-  class ScanMatcherComponent : public rclcpp::Node
+  class ScanMatcherComponent: public rclcpp::Node
   {
 public:
     GS_SM_PUBLIC
@@ -102,7 +101,7 @@ private:
 
     rclcpp::Subscription < geometry_msgs::msg::PoseStamped > ::SharedPtr initial_pose_sub_;
     rclcpp::Subscription < sensor_msgs::msg::Imu > ::SharedPtr imu_sub_;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
+    rclcpp::Subscription < nav_msgs::msg::Odometry > ::SharedPtr odom_sub_;
     rclcpp::Subscription < sensor_msgs::msg::PointCloud2 > ::SharedPtr input_cloud_sub_;
 
     std::mutex mtx_;
@@ -121,7 +120,7 @@ private:
     rclcpp::Publisher < sensor_msgs::msg::PointCloud2 > ::SharedPtr map_pub_;
     rclcpp::Publisher < lidarslam_msgs::msg::MapArray > ::SharedPtr map_array_pub_;
     rclcpp::Publisher < nav_msgs::msg::Path > ::SharedPtr path_pub_;
-    rclcpp::Publisher <nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
+    rclcpp::Publisher < nav_msgs::msg::Odometry > ::SharedPtr odom_pub_;
 
     void initializePubSub();
     void receiveCloud(
@@ -177,9 +176,9 @@ private:
     Eigen::Matrix4f previous_odom_mat_ {Eigen::Matrix4f::Identity()};
 
     // lider inertial slam
-    static const int odom_que_length_{200};
-    std::array<nav_msgs::msg::Odometry, odom_que_length_> odom_que_;
-    int odom_ptr_front_{0}, odom_ptr_last_{-1};
+    static const int odom_que_length_ {200};
+    std::array < nav_msgs::msg::Odometry, odom_que_length_ > odom_que_;
+    int odom_ptr_front_ {0}, odom_ptr_last_ {-1};
 
   };
 }

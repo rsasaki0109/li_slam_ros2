@@ -1,4 +1,4 @@
 .vscode
-lidarslam/launch/test.launch.py
-lidarslam/param/test.yaml
-lidarslam/rviz/test.rviz
+scanmatcher/launch/test.launch.py
+scanmatcher/param/test.yaml
+scanmatcher/rviz/test.rviz
