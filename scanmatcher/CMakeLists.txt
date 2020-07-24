@@ -36,7 +36,7 @@ find_package(lidarslam_msgs REQUIRED)
 find_package(ndt_omp_ros2 REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenMP)
-find_package(GTSAM REQUIRED)
+find_package(GTSAM)
 
 #find_package(liosam_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
