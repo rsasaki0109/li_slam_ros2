@@ -257,14 +257,20 @@ void ScanMatcherComponent::initializePubSub()
   pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>(
     "current_pose",
     rclcpp::QoS(rclcpp::KeepLast(1)).reliable());
-  map_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>("map", rclcpp::QoS(rclcpp::KeepLast(1)).reliable());
+  map_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(
+    "map", rclcpp::QoS(
+      rclcpp::KeepLast(
+        1)).reliable());
   map_array_pub_ =
     create_publisher<lidarslam_msgs::msg::MapArray>(
     "map_array", rclcpp::QoS(
       rclcpp::KeepLast(
         1)).reliable());
   path_pub_ = create_publisher<nav_msgs::msg::Path>("path", 1);
-  odom_pub_ = create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(rclcpp::KeepLast(1)).reliable());
+  odom_pub_ = create_publisher<nav_msgs::msg::Odometry>(
+    "odom", rclcpp::QoS(
+      rclcpp::KeepLast(
+        1)).reliable());
 }
 
 void ScanMatcherComponent::receiveCloud(
@@ -493,7 +499,7 @@ void ScanMatcherComponent::publishMap()
 {
   RCLCPP_INFO(get_logger(), "publish a map");
 
-  pcl::PointCloud<pcl::PointXYZI>::Ptr  map_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZI>);
   for (auto & submap : map_array_msg_.submaps) {
     pcl::PointCloud<PointType>::Ptr submap_cloud_ptr(new pcl::PointCloud<PointType>);
     pcl::fromROSMsg(submap.cloud, *submap_cloud_ptr);
@@ -505,7 +511,7 @@ void ScanMatcherComponent::publishMap()
   pcl::toROSMsg(*map_ptr, *map_msg_ptr);
   map_msg_ptr->header.frame_id = global_frame_id_;
   map_pub_->publish(*map_msg_ptr);
-  
+
 }
 
 }
