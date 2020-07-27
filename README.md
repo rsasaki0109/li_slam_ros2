@@ -13,7 +13,7 @@ See LIO-SAM for IMU composites, otherwise see lidarslam_ros2.
 Green path: path
 
 Reference(From the LIO-SAM paper)  
-https://github.com/TixiaoShan/LIO-SAM/blob/master/config/doc/paper.pdf
+https://github.com/TixiaoShan/LIO-SAM/blob/master/config/doc/paper.pdf  
 <img src="./scanmatcher/images/liosam_thesis.png">
 
 ## requirement to build
@@ -49,7 +49,7 @@ colcon build
 
 ## Demo
 
-The initialization methods and the optimization pipeline in Lidar Inertial SLAM were taken from [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM).
+The optimization pipeline in Lidar Inertial SLAM were taken from [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM).
 
 (Note: See the LIO-SAM repository for detailed settings regarding IMU.  
 The other thing to note is that the speed will diverge if the voxel_grid_size is large.  
@@ -84,6 +84,12 @@ Green path: path
 
 rosgraph
 
+`pose_graph.g2o` and `map.pcd` are saved in loop closing or using the following service call.
+
+```
+ros2 service call /map_save std_srvs/Empty
+```
+
 
 ## Used Libraries 
 
@@ -91,4 +97,4 @@ rosgraph
 - PCL(BSD3)
 - g2o(BSD2 except a part)
 - [ndt_omp](https://github.com/koide3/ndt_omp) (BSD2)
-- gtsam
+- gtsam(BSD2)
