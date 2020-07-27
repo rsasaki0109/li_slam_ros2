@@ -79,10 +79,9 @@ Green arrow: pose, Yellow path: path, Green path: path by imu
 
 Green path: path
 
+rosgraph
 
 <img src="./scanmatcher/images/rosgraph.png">  
-
-rosgraph
 
 `pose_graph.g2o` and `map.pcd` are saved in loop closing or using the following service call.
 

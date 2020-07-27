@@ -218,10 +218,11 @@ void GraphBasedSlamComponent::searchLoop()
         tf2::fromMsg(min_submap.pose, submap_affine);
 
         LoopEdge loop_edge;
-        loop_edge.pair_id = std::pair<int, int>(num_submaps - 1, id_min);
-        Eigen::Isometry3d from = Eigen::Isometry3d(registration_->getFinalTransformation().cast<double>() * init_affine.matrix());
+        loop_edge.pair_id = std::pair<int, int>(id_min, num_submaps - 1);
+        Eigen::Isometry3d from = Eigen::Isometry3d(submap_affine.matrix());
         Eigen::Isometry3d to = Eigen::Isometry3d(
-           submap_affine.matrix());
+          registration_->getFinalTransformation().cast<double>() * init_affine.matrix());
+
         loop_edge.relative_pose = Eigen::Isometry3d(from.inverse() * to);
         loop_edges_.push_back(loop_edge);
 
@@ -257,16 +258,12 @@ void GraphBasedSlamComponent::doPoseAdjustment(
   optimizer.setAlgorithm(solver);
 
   int submaps_size = map_array_msg.submaps.size();
-  Eigen::Isometry3d first_visited_point;
   Eigen::Isometry3d previous_pose;
   Eigen::Matrix<double, 6, 6> info_mat = Eigen::Matrix<double, 6, 6>::Identity();
   for (int i = 0; i < submaps_size; i++) {
-    geometry_msgs::msg::Point pos = map_array_msg.submaps[i].pose.position;
-    geometry_msgs::msg::Quaternion quat = map_array_msg.submaps[i].pose.orientation;
-
-    Eigen::Translation3d translation(pos.x, pos.y, pos.z);
-    Eigen::Quaterniond rotation(quat.w, quat.x, quat.y, quat.z);
-    Eigen::Isometry3d pose = translation * rotation;
+    Eigen::Affine3d affine;
+    Eigen::fromMsg(map_array_msg.submaps[i].pose, affine);
+    Eigen::Isometry3d pose(affine.matrix());
 
     g2o::VertexSE3 * vertex_se3 = new g2o::VertexSE3();
     vertex_se3->setId(i);
@@ -276,7 +273,6 @@ void GraphBasedSlamComponent::doPoseAdjustment(
 
     if (i > 0) {
       Eigen::Isometry3d relative_pose = previous_pose.inverse() * pose;
-
       g2o::EdgeSE3 * edge_se3 = new g2o::EdgeSE3();
       edge_se3->setMeasurement(relative_pose);
       edge_se3->setInformation(info_mat);
@@ -311,31 +307,20 @@ void GraphBasedSlamComponent::doPoseAdjustment(
   pcl::PointCloud<pcl::PointXYZI>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZI>());
   for (int i = 0; i < submaps_size; i++) {
     g2o::VertexSE3 * vertex_se3 = static_cast<g2o::VertexSE3 *>(optimizer.vertex(i));
-    Eigen::Isometry3d se3 = vertex_se3->estimate();
-    Eigen::Vector3d translation = se3.translation();
-    Eigen::Matrix3d rotation = se3.rotation();
-
-    geometry_msgs::msg::Point pos;
-    pos.x = translation(0);
-    pos.y = translation(1);
-    pos.z = translation(2);
-
-    Eigen::Quaterniond q_eig(rotation);
-    geometry_msgs::msg::Quaternion quat = tf2::toMsg(q_eig);
+    Eigen::Affine3d se3 = vertex_se3->estimate();
+    geometry_msgs::msg::Pose pose = tf2::toMsg(se3);
 
     /* map */
-    Eigen::Affine3d affine;
-    tf2::fromMsg(map_array_msg.submaps[i].pose, affine);
-    Eigen::Matrix4f previous_matrix = affine.matrix().cast<float>();
+    Eigen::Affine3d previous_affine;
+    tf2::fromMsg(map_array_msg.submaps[i].pose, previous_affine);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr transformed_cloud_ptr(
       new pcl::PointCloud<pcl::PointXYZI>());
     pcl::fromROSMsg(map_array_msg.submaps[i].cloud, *cloud_ptr);
 
-    Eigen::Isometry3f isometry = Eigen::Isometry3f(previous_matrix).inverse() * Eigen::Isometry3f(
-      se3);
-    pcl::transformPointCloud(*cloud_ptr, *transformed_cloud_ptr, isometry.matrix());
+    Eigen::Affine3d relative_affine = previous_affine.inverse() * se3;
+    pcl::transformPointCloud(*cloud_ptr, *transformed_cloud_ptr, relative_affine.matrix().cast<float>());
     sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg_ptr(new sensor_msgs::msg::PointCloud2);
     pcl::toROSMsg(*transformed_cloud_ptr, *cloud_msg_ptr);
     *map_ptr += *cloud_ptr;
@@ -343,8 +328,7 @@ void GraphBasedSlamComponent::doPoseAdjustment(
     /* submap */
     lidarslam_msgs::msg::SubMap submap;
     submap.header = map_array_msg.submaps[i].header;
-    submap.pose.position = pos;
-    submap.pose.orientation = quat;
+    submap.pose = pose;
     submap.cloud = *cloud_msg_ptr;
     modified_map_array_msg.submaps.push_back(submap);
 
