@@ -19,7 +19,6 @@ set(CMAKE_BUILD_TYPE "RELEASE")
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-#find_package(PCL 1.8 REQUIRED)
 find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})

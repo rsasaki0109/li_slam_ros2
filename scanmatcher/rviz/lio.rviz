@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Grid1
         - /PointCloud22
       Splitter Ratio: 0.5
     Tree Height: 613
@@ -39,7 +40,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 25
+      Plane Cell Count: 30
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 1
@@ -170,7 +171,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.10000000149011612
+      Size (m): 0.05000000074505806
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -249,25 +250,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 181.93373107910156
+      Distance: 320.7508239746094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -4.963667392730713
-        Y: 10.590868949890137
-        Z: 40.147735595703125
+        X: 79.1849594116211
+        Y: -65.26181030273438
+        Z: 69.77189636230469
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6947963833808899
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.048957347869873
+      Yaw: 3.108959436416626
     Saved: ~
 Window Geometry:
   Displays:

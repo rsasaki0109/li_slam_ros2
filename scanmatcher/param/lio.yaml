@@ -24,7 +24,6 @@ scan_matcher:
 imu_preintegration:
     ros__parameters:
       imuTopic: "imu_raw"
-      odomTopic: "preintegrated_odom"
       imuAccNoise: 3.9939570888238808e-03
       imuGyrNoise: 1.5636343949698187e-03
       imuAccBiasN: 6.4356659353532566e-05
@@ -44,7 +43,6 @@ image_projection:
       N_SCAN: 16
       Horizon_SCAN: 1800
       imuTopic: "imu_raw"
-      odomTopic: "preintegrated_odom"
       extrinsicTrans: [0.0, 0.0, 0.0] # Now the IMU geometry must be set the same for both imu_preintegration and image_projection...
       extrinsicRot: [-1.0, 0.0, 0.0,
                   0.0, 1.0, 0.0,
@@ -56,12 +54,13 @@ image_projection:
 
 graph_based_slam:
     ros__parameters:
+      registration_method: "GICP"
       ndt_resolution: 5.0
       ndt_num_threads: 1
-      voxel_leaf_size: 0.2
-      loop_detection_period: 5000
+      voxel_leaf_size: 0.1
+      loop_detection_period: 3000
       threshold_loop_closure_score: 2.5
-      distance_loop_closure: 100.0
+      distance_loop_closure: 25.0
       range_of_searching_loop_closure: 20.0
       search_submap_num: 4
       use_save_map_in_loop: false

@@ -69,6 +69,8 @@ extern "C" {
 #include <pclomp/ndt_omp_impl.hpp>
 #include <pclomp/voxel_grid_covariance_omp.h>
 #include <pclomp/voxel_grid_covariance_omp_impl.hpp>
+#include <pclomp/gicp_omp.h>
+#include <pclomp/gicp_omp_impl.hpp>
 
 #include "g2o/core/sparse_optimizer.h"
 #include "g2o/core/optimization_algorithm_levenberg.h"
@@ -101,7 +103,7 @@ private:
     tf2_ros::TransformListener listener_;
     tf2_ros::TransformBroadcaster broadcaster_;
 
-    pclomp::NormalDistributionsTransform < pcl::PointXYZI, pcl::PointXYZI > ndt_;
+    pcl::Registration < pcl::PointXYZI, pcl::PointXYZI > ::Ptr registration_;
     pcl::VoxelGrid < pcl::PointXYZI > voxelgrid_;
 
     lidarslam_msgs::msg::MapArray map_array_msg_;
