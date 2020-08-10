@@ -10,7 +10,7 @@ See LIO-SAM for IMU composites, otherwise see lidarslam_ros2.
 
 <img src="./scanmatcher/images/li_slam.png">
 
-Green path: path
+Yellow path: path without loop closure, Green path: modified path, Red: map
 
 Reference(From the LIO-SAM paper)  
 https://github.com/TixiaoShan/LIO-SAM/blob/master/config/doc/paper.pdf  
@@ -77,7 +77,7 @@ Green arrow: pose, Yellow path: path, Green path: path by imu
 
 <img src="./scanmatcher/images/li_slam.png">
 
-Green path: path
+Yellow path: path without loop closure, Green path: modified path, Red: map
 
 rosgraph
 
