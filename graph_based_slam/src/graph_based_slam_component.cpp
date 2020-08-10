@@ -102,7 +102,7 @@ void GraphBasedSlamComponent::initializePubSub()
   auto map_array_callback =
     [this](const typename lidarslam_msgs::msg::MapArray::SharedPtr msg_ptr) -> void
     {
-      std::lock_guard<std::mutex> lock(mtx);
+      std::lock_guard<std::mutex> lock(mtx_);
       map_array_msg_ = *msg_ptr;
       initial_map_array_received_ = true;
       is_map_array_updated_ = true;
@@ -122,10 +122,6 @@ void GraphBasedSlamComponent::initializePubSub()
     "modified_map",
     rclcpp::QoS(10));
 
-  loop_candidate_map_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(
-    "loop_candidate_map",
-    rclcpp::QoS(10));
-
   modified_map_array_pub_ = create_publisher<lidarslam_msgs::msg::MapArray>(
     "modified_map_array", rclcpp::QoS(10));
 
@@ -142,18 +138,16 @@ void GraphBasedSlamComponent::searchLoop()
 
   if (initial_map_array_received_ == false) {return;}
   if (is_map_array_updated_ == false) {return;}
-  if (map_array_msg_.cloud_coordinate != map_array_msg_.GLOBAL) {
-    RCLCPP_WARN(get_logger(), "cloud_coordinate should be global, but it's not global.");
+  if (map_array_msg_.cloud_coordinate != map_array_msg_.LOCAL) {
+    RCLCPP_WARN(get_logger(), "cloud_coordinate should be local, but it's not local.");
   }
   is_map_array_updated_ = false;
 
-  std::cout << "----------------------------" << std::endl;
-  std::cout << "searching Loop" << std::endl;
-
   lidarslam_msgs::msg::MapArray map_array_msg = map_array_msg_;
-  std::lock_guard<std::mutex> lock(mtx);
+  std::lock_guard<std::mutex> lock(mtx_);
   int num_submaps = map_array_msg.submaps.size();
-  std::cout << "num_submaps:" << num_submaps << std::endl;
+  std::cout << "----------------------------" << std::endl;
+  std::cout << "searching Loop, num_submaps:" << num_submaps << std::endl;
 
   double min_fitness_score = std::numeric_limits<double>::max();
   double distance_min_fitness_score = 0;
@@ -165,7 +159,11 @@ void GraphBasedSlamComponent::searchLoop()
   tf2::fromMsg(latest_submap.pose, latest_submap_affine);
   pcl::PointCloud<pcl::PointXYZI>::Ptr latest_submap_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
   pcl::fromROSMsg(latest_submap.cloud, *latest_submap_cloud_ptr);
-  registration_->setInputSource(latest_submap_cloud_ptr);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr transformed_latest_submap_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+  Eigen::Affine3d latest_affine;
+  tf2::fromMsg(latest_submap.pose, latest_affine);
+  pcl::transformPointCloud(*latest_submap_cloud_ptr, *transformed_latest_submap_cloud_ptr, latest_affine.matrix().cast<float>());
+  registration_->setInputSource(transformed_latest_submap_cloud_ptr);
   double latest_moving_distance = latest_submap.distance;
   Eigen::Vector3d latest_submap_pos{
     latest_submap.pose.position.x,
@@ -198,7 +196,11 @@ void GraphBasedSlamComponent::searchLoop()
         auto near_submap = map_array_msg.submaps[id_min + j - search_submap_num_];
         pcl::PointCloud<pcl::PointXYZI>::Ptr submap_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
         pcl::fromROSMsg(near_submap.cloud, *submap_cloud_ptr);
-        *submap_clouds_ptr += *submap_cloud_ptr;
+        pcl::PointCloud<pcl::PointXYZI>::Ptr transformed_submap_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+        Eigen::Affine3d affine;
+        tf2::fromMsg(near_submap.pose, affine);
+        pcl::transformPointCloud(*submap_cloud_ptr, *transformed_submap_cloud_ptr, affine.matrix().cast<float>());
+        *submap_clouds_ptr += *transformed_submap_cloud_ptr;
       }
 
       pcl::PointCloud<pcl::PointXYZI>::Ptr filtered_clouds_ptr(new pcl::PointCloud<pcl::PointXYZI>());
@@ -237,6 +239,7 @@ void GraphBasedSlamComponent::searchLoop()
 
         return;
       }
+
       std::cout << "-" << std::endl;
       std::cout << "min_submap_distance:" << min_submap.distance << std::endl;
       std::cout << "min_fitness_score:" << fitness_score << std::endl;
@@ -319,11 +322,10 @@ void GraphBasedSlamComponent::doPoseAdjustment(
       new pcl::PointCloud<pcl::PointXYZI>());
     pcl::fromROSMsg(map_array_msg.submaps[i].cloud, *cloud_ptr);
 
-    Eigen::Affine3d relative_affine = previous_affine.inverse() * se3;
-    pcl::transformPointCloud(*cloud_ptr, *transformed_cloud_ptr, relative_affine.matrix().cast<float>());
+    pcl::transformPointCloud(*cloud_ptr, *transformed_cloud_ptr, se3.matrix().cast<float>());
     sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg_ptr(new sensor_msgs::msg::PointCloud2);
     pcl::toROSMsg(*transformed_cloud_ptr, *cloud_msg_ptr);
-    *map_ptr += *cloud_ptr;
+    *map_ptr += *transformed_cloud_ptr;
 
     /* submap */
     lidarslam_msgs::msg::SubMap submap;

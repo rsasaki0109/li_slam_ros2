@@ -8,6 +8,7 @@ scan_matcher:
       trans_for_mapupdate: 1.5
       vg_size_for_input: 0.1
       vg_size_for_map: 0.1
+      use_min_max_filter: false
       map_publish_period: 100.0
       num_targeted_cloud: 20
       set_initial_pose: true
@@ -19,6 +20,7 @@ scan_matcher:
       initial_pose_qz: 0.0
       initial_pose_qw: 1.0
       use_imu: true
+      use_odom: false
       debug_flag: false
 
 imu_preintegration:
@@ -59,7 +61,7 @@ graph_based_slam:
       ndt_num_threads: 1
       voxel_leaf_size: 0.1
       loop_detection_period: 3000
-      threshold_loop_closure_score: 2.0
+      threshold_loop_closure_score: 1.0
       distance_loop_closure: 25.0
       range_of_searching_loop_closure: 20.0
       search_submap_num: 4
