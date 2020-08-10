@@ -65,4 +65,5 @@ graph_based_slam:
       distance_loop_closure: 25.0
       range_of_searching_loop_closure: 20.0
       search_submap_num: 4
+      num_adjacent_pose_cnstraints: 5
       use_save_map_in_loop: false
