@@ -127,6 +127,7 @@ private:
     int search_submap_num_;
 
     // pose graph optimization parameter
+    int num_adjacent_pose_cnstraints_;
     bool use_save_map_in_loop_ {true};
 
     bool initial_map_array_received_ {false};

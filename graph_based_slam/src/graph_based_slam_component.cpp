@@ -36,6 +36,8 @@ GraphBasedSlamComponent::GraphBasedSlamComponent(const rclcpp::NodeOptions & opt
   get_parameter("range_of_searching_loop_closure", range_of_searching_loop_closure_);
   declare_parameter("search_submap_num", 3);
   get_parameter("search_submap_num", search_submap_num_);
+  declare_parameter("num_adjacent_pose_cnstraints", 5);
+  get_parameter("num_adjacent_pose_cnstraints", num_adjacent_pose_cnstraints_);
   declare_parameter("use_save_map_in_loop", true);
   get_parameter("use_save_map_in_loop", use_save_map_in_loop_);
 
@@ -49,6 +51,7 @@ GraphBasedSlamComponent::GraphBasedSlamComponent(const rclcpp::NodeOptions & opt
   std::cout << "range_of_searching_loop_closure[m]:" << range_of_searching_loop_closure_ <<
     std::endl;
   std::cout << "search_submap_num:" << search_submap_num_ << std::endl;
+  std::cout << "num_adjacent_pose_cnstraints:" << num_adjacent_pose_cnstraints_ << std::endl;
   std::cout << "use_save_map_in_loop:" << std::boolalpha << use_save_map_in_loop_ << std::endl;
   std::cout << "------------------" << std::endl;
 
@@ -261,7 +264,6 @@ void GraphBasedSlamComponent::doPoseAdjustment(
   optimizer.setAlgorithm(solver);
 
   int submaps_size = map_array_msg.submaps.size();
-  Eigen::Isometry3d previous_pose;
   Eigen::Matrix<double, 6, 6> info_mat = Eigen::Matrix<double, 6, 6>::Identity();
   for (int i = 0; i < submaps_size; i++) {
     Eigen::Affine3d affine;
@@ -274,18 +276,21 @@ void GraphBasedSlamComponent::doPoseAdjustment(
     if (i == submaps_size - 1) {vertex_se3->setFixed(true);}
     optimizer.addVertex(vertex_se3);
 
-    if (i > 0) {
-      Eigen::Isometry3d relative_pose = previous_pose.inverse() * pose;
-      g2o::EdgeSE3 * edge_se3 = new g2o::EdgeSE3();
-      edge_se3->setMeasurement(relative_pose);
-      edge_se3->setInformation(info_mat);
-      edge_se3->vertices()[0] = optimizer.vertex(i - 1);
-      edge_se3->vertices()[1] = optimizer.vertex(i);
-
-      optimizer.addEdge(edge_se3);
+    if (i > num_adjacent_pose_cnstraints_) {
+      for (int j = 0; j < num_adjacent_pose_cnstraints_; j++) {
+        Eigen::Affine3d pre_affine;
+        Eigen::fromMsg(map_array_msg.submaps[i - num_adjacent_pose_cnstraints_ + j].pose, pre_affine);
+        Eigen::Isometry3d pre_pose(pre_affine.matrix());
+        Eigen::Isometry3d relative_pose = pre_pose.inverse() * pose;
+        g2o::EdgeSE3 * edge_se3 = new g2o::EdgeSE3();
+        edge_se3->setMeasurement(relative_pose);
+        edge_se3->setInformation(info_mat);
+        edge_se3->vertices()[0] = optimizer.vertex(i - num_adjacent_pose_cnstraints_ + j);
+        edge_se3->vertices()[1] = optimizer.vertex(i);
+        optimizer.addEdge(edge_se3);
+      }
     }
 
-    previous_pose = pose;
   }
   /* loop edge */
   for (auto loop_edge : loop_edges_) {
