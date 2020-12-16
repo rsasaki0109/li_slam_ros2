@@ -36,7 +36,7 @@ You need  [ndt_omp_ros2](https://github.com/rsasaki0109/ndt_omp_ros2) and gtsam 
 clone
 ```
 cd ~/ros2_ws/src
-git clone --recursive https://github.com/rsasaki0109/lidarslam_ros2
+git clone --recursive https://github.com/rsasaki0109/li_slam_ros2
 ```
 gtsam install
 ```
