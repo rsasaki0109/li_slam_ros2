@@ -506,13 +506,16 @@ void ScanMatcherComponent::publishMap()
 
   pcl::PointCloud<pcl::PointXYZI>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZI>);
   for (auto & submap : map_array_msg_.submaps) {
-    pcl::PointCloud<PointType>::Ptr submap_cloud_ptr(new pcl::PointCloud<PointType>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr submap_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr transformed_submap_cloud_ptr(
+        new pcl::PointCloud<pcl::PointXYZI>);
     pcl::fromROSMsg(submap.cloud, *submap_cloud_ptr);
-    pcl::PointCloud<PointType>::Ptr transformed_submap_cloud_ptr(new pcl::PointCloud<PointType>());
-    Eigen::Affine3d submap_affine;
-    tf2::fromMsg(submap.pose, submap_affine);
-    pcl::transformPointCloud(*submap_cloud_ptr, *transformed_submap_cloud_ptr, submap_affine.matrix());
-    *map_ptr += *submap_cloud_ptr;
+    Eigen::Affine3d affine;
+    tf2::fromMsg(submap.pose, affine);
+    pcl::transformPointCloud(
+      *submap_cloud_ptr, *transformed_submap_cloud_ptr,
+      affine.matrix().cast<float>());
+    *map_ptr += *transformed_submap_cloud_ptr;
   }
   std::cout << "number of map　points: " << map_ptr->size() << std::endl;
 
@@ -520,7 +523,6 @@ void ScanMatcherComponent::publishMap()
   pcl::toROSMsg(*map_ptr, *map_msg_ptr);
   map_msg_ptr->header.frame_id = global_frame_id_;
   map_pub_->publish(*map_msg_ptr);
-
 }
 
 }
