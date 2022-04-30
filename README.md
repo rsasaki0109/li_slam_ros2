@@ -40,19 +40,9 @@ git clone --recursive https://github.com/rsasaki0109/li_slam_ros2
 ```
 gtsam install
 ```
-sudo apt-get install libtbb-dev
-mkdir ~/workspace && cd ~/workspace
-git clone https://github.com/borglab/gtsam
-cd gtsam
-mkdir -p build && cd build
-cmake \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DGTSAM_BUILD_WITH_MARCH_NATIVE=OFF \
-  -DGTSAM_USE_SYSTEM_EIGEN=ON \
-  -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF \
-  ..
-make -j4 check
-sudo make install -j4
+sudo add-apt-repository ppa:borglab/gtsam-release-4.0
+sudo apt update
+sudo apt install libgtsam-dev libgtsam-unstable-dev
 ```
 build
 ```
