@@ -1,3 +1,23 @@
+/**:
+    ros__parameters:
+      # LiDAR setting
+      N_SCAN: 16
+      Horizon_SCAN: 1800
+      # IMU setting
+      imuTopic: "imu_correct"
+      imuAccNoise: 3.9939570888238808e-03
+      imuGyrNoise: 1.5636343949698187e-03
+      imuAccBiasN: 6.4356659353532566e-05
+      imuGyrBiasN: 3.5640318696367613e-05
+      imuGravity: 9.80511
+      extrinsicTrans: [0.0, 0.0, 0.0]
+      extrinsicRot: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]
+      extrinsicRPY: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]
+
 scan_matcher:
     ros__parameters:
       global_frame_id: "map"
@@ -22,36 +42,6 @@ scan_matcher:
       use_imu: true
       use_odom: false
       debug_flag: false
-
-imu_preintegration:
-    ros__parameters:
-      imuTopic: "imu_correct"
-      imuAccNoise: 3.9939570888238808e-03
-      imuGyrNoise: 1.5636343949698187e-03
-      imuAccBiasN: 6.4356659353532566e-05
-      imuGyrBiasN: 3.5640318696367613e-05
-      imuGravity: 9.80511
-      extrinsicTrans: [0.0, 0.0, 0.0] # Now the IMU geometry must be set the same for both imu_preintegration and image_projection...
-      extrinsicRot: [1.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0,
-                  0.0, 0.0, 1.0]
-      extrinsicRPY: [1.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0,
-                  0.0, 0.0, 1.0]
-
-
-image_projection:
-    ros__parameters:
-      N_SCAN: 16
-      Horizon_SCAN: 1800
-      imuTopic: "imu_correct"
-      extrinsicTrans: [0.0, 0.0, 0.0] # Now the IMU geometry must be set the same for both imu_preintegration and image_projection...
-      extrinsicRot: [1.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0,
-                  0.0, 0.0, 1.0]
-      extrinsicRPY: [1.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0,
-                  0.0, 0.0, 1.0]
 
 graph_based_slam:
     ros__parameters:
