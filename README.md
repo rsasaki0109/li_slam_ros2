@@ -72,7 +72,7 @@ ros2 launch scanmatcher lio.launch.py
 ```
 
 ```
-ros2 bag play -s rosbag_v2 casual_walk.bag 
+ros2 bag play -s rosbag_v2 walking_dataset.bag 
 ```
 
 <img src="./scanmatcher/images/li_slam.gif">
