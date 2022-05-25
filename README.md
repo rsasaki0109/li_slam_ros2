@@ -47,7 +47,7 @@ sudo apt install libgtsam-dev libgtsam-unstable-dev
 build
 ```
 cd ~/ros2_ws
-colcon build
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 
