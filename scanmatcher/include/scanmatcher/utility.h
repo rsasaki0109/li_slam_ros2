@@ -85,6 +85,8 @@
 
 using namespace std;
 
+enum class SensorType { VELODYNE, OUSTER, LIVOX };
+
 template < typename T >
 double ROS_TIME(T msg)
 {
@@ -100,7 +102,8 @@ public:
   string imuTopic;
   string odomTopic;
 
-  // Velodyne Sensor Configuration: Velodyne
+  // Lidar Sensor Configuration
+  SensorType sensor;
   int N_SCAN;
   int Horizon_SCAN;
 
@@ -127,6 +130,28 @@ public:
     get_parameter("imuTopic", imuTopic);
     declare_parameter("odomTopic", "preintegrated_odom");
     get_parameter("odomTopic", odomTopic);
+
+    std::string sensorStr;
+    declare_parameter("sensor", "");
+    get_parameter("sensor", sensorStr);
+    if (sensorStr == "velodyne")
+    {
+        sensor = SensorType::VELODYNE;
+    }
+    else if (sensorStr == "ouster")
+    {
+        sensor = SensorType::OUSTER;
+    }
+    else if (sensorStr == "livox")
+    {
+        sensor = SensorType::LIVOX;
+    }
+    else
+    {
+        RCLCPP_ERROR_STREAM(get_logger(),
+            "Invalid sensor type (must be either 'velodyne' or 'ouster' or 'livox'): " << sensorStr);
+        rclcpp::shutdown();
+    }
 
     declare_parameter("N_SCAN", 16);
     get_parameter("N_SCAN", N_SCAN);

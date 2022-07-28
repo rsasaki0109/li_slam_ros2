@@ -1,6 +1,7 @@
 /**:
     ros__parameters:
       # LiDAR setting
+      sensor: velodyne
       N_SCAN: 16
       Horizon_SCAN: 1800
       # IMU setting

@@ -54,6 +54,21 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
     ring) (float, time, time)
 )
 
+struct OusterPointXYZIRT {
+    PCL_ADD_POINT4D;
+    float intensity;
+    uint32_t t;
+    uint16_t reflectivity;
+    uint8_t ring;
+    uint16_t noise;
+    uint32_t range;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+} EIGEN_ALIGN16;
+POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
+    (float, x, x) (float, y, y) (float, z, z) (float, intensity, intensity)
+    (uint32_t, t, t) (uint16_t, reflectivity, reflectivity)
+    (uint8_t, ring, ring) (uint16_t, noise, noise) (uint32_t, range, range)
+)
 
 const int queueLength = 500;
 
@@ -85,6 +100,7 @@ private:
   Eigen::Affine3f transStartInverse;
 
   pcl::PointCloud<PointXYZIRT>::Ptr laserCloudIn;
+  pcl::PointCloud<OusterPointXYZIRT>::Ptr tmpOusterCloudIn;
   pcl::PointCloud<PointType>::Ptr fullCloud;
   pcl::PointCloud<PointType>::Ptr extractedCloud;
 
@@ -137,6 +153,7 @@ public:
   void allocateMemory()
   {
     laserCloudIn.reset(new pcl::PointCloud<PointXYZIRT>());
+    tmpOusterCloudIn.reset(new pcl::PointCloud<OusterPointXYZIRT>());
     fullCloud.reset(new pcl::PointCloud<PointType>());
     extractedCloud.reset(new pcl::PointCloud<PointType>());
 
@@ -223,20 +240,44 @@ public:
 
     if (cloudQueue.size() <= 2) {
       return false;
-    } else {
-      currentCloudMsg = cloudQueue.front();
-      cloudQueue.pop_front();
-
-      cloudHeader = currentCloudMsg.header;
-      // timeScanCur = cloudHeader.stamp.toSec();
-      timeScanCur = cloudHeader.stamp.sec + cloudHeader.stamp.nanosec * 1e-9;
-      // timeScanNext = cloudQueue.front().header.stamp.toSec();
-      timeScanNext = cloudQueue.front().header.stamp.sec + cloudQueue.front().header.stamp.nanosec *
-        1e-9;
     }
 
-    // convert cloud
-    pcl::fromROSMsg(currentCloudMsg, *laserCloudIn);
+      // convert cloud
+      currentCloudMsg = std::move(cloudQueue.front());
+      cloudQueue.pop_front();
+      if (sensor == SensorType::VELODYNE || sensor == SensorType::LIVOX)
+      {
+          pcl::moveFromROSMsg(currentCloudMsg, *laserCloudIn);
+      }
+      else if (sensor == SensorType::OUSTER)
+      {
+          // Convert to Velodyne format
+          pcl::moveFromROSMsg(currentCloudMsg, *tmpOusterCloudIn);
+          laserCloudIn->points.resize(tmpOusterCloudIn->size());
+          laserCloudIn->is_dense = tmpOusterCloudIn->is_dense;
+          for (size_t i = 0; i < tmpOusterCloudIn->size(); i++)
+          {
+              auto &src = tmpOusterCloudIn->points[i];
+              auto &dst = laserCloudIn->points[i];
+              dst.x = src.x;
+              dst.y = src.y;
+              dst.z = src.z;
+              dst.intensity = src.intensity;
+              dst.ring = src.ring;
+              dst.time = src.t * 1e-9f;
+          }
+      }
+      else
+      {
+          RCLCPP_ERROR_STREAM(get_logger(), "Unknown sensor type: " << int(sensor));
+          rclcpp::shutdown();
+      }
+
+      // get timestamp
+      cloudHeader = currentCloudMsg.header;
+      timeScanCur = cloudHeader.stamp.sec + cloudHeader.stamp.nanosec * 1e-9;
+      timeScanNext = timeScanCur + laserCloudIn->points.back().time;
+
 
     // check dense flag
     if (laserCloudIn->is_dense == false) {
