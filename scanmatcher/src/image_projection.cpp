@@ -116,6 +116,8 @@ private:
   double timeScanNext;
   std_msgs::msg::Header cloudHeader;
 
+  vector<int> columnIdnCountVec;
+
 public:
   ImageProjection(const rclcpp::NodeOptions & options)
   : ParamServer("image_projection", options),
@@ -179,6 +181,7 @@ public:
       imuRotY[i] = 0;
       imuRotZ[i] = 0;
     }
+    columnIdnCountVec.assign(N_SCAN, 0);
   }
 
   ~ImageProjection() {}
@@ -598,41 +601,45 @@ public:
       thisPoint.z = laserCloudIn->points[i].z;
       thisPoint.intensity = laserCloudIn->points[i].intensity;
 
-      int rowIdn = laserCloudIn->points[i].ring;
+      float range = pointDistance(thisPoint);
+      if (range < 1.0) {
+        continue;
+      }
 
+      int rowIdn = laserCloudIn->points[i].ring;
       if (rowIdn < 0 || rowIdn >= N_SCAN) {
         continue;
       }
 
-      float horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
+      int columnIdn = -1;
+      if (sensor == SensorType::VELODYNE || sensor == SensorType::OUSTER)
+      {
+        float horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
 
-      float ang_res_x = 360.0 / float(Horizon_SCAN);
-      int columnIdn = -round((horizonAngle - 90.0) / ang_res_x) + Horizon_SCAN / 2;
-      if (columnIdn >= Horizon_SCAN) {
-        columnIdn -= Horizon_SCAN;
+        float ang_res_x = 360.0 / float(Horizon_SCAN);
+        columnIdn = -round((horizonAngle - 90.0) / ang_res_x) + Horizon_SCAN / 2;
+
+        if (columnIdn >= Horizon_SCAN) {
+          columnIdn -= Horizon_SCAN;
+        }
+      }
+      else if (sensor == SensorType::LIVOX)
+      {
+          columnIdn = columnIdnCountVec[rowIdn];
+          columnIdnCountVec[rowIdn] += 1;
       }
 
       if (columnIdn < 0 || columnIdn >= Horizon_SCAN) {
         continue;
       }
 
-      float range = pointDistance(thisPoint);
-
-      if (range < 1.0) {
+      if (rangeMat.at<float>(rowIdn, columnIdn) != FLT_MAX) {
         continue;
       }
 
-      if (rangeMat.at<float>(rowIdn, columnIdn) != FLT_MAX) {continue;}
-
-      // for the amsterdam dataset
-      // if (range < 6.0 && rowIdn <= 7 && (columnIdn >= 1600 || columnIdn <= 200))
-      //     continue;
-      // if (thisPoint.z < -2.0)
-      //     continue;
+      thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
 
       rangeMat.at<float>(rowIdn, columnIdn) = range;
-
-      thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
 
       int index = columnIdn + rowIdn * Horizon_SCAN;
       fullCloud->points[index] = thisPoint;
