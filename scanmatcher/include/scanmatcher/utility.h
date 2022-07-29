@@ -134,6 +134,7 @@ public:
     std::string sensorStr;
     declare_parameter("sensor", "");
     get_parameter("sensor", sensorStr);
+    std::cout << "SensorType:" << sensorStr<< std::endl;
     if (sensorStr == "velodyne")
     {
         sensor = SensorType::VELODYNE;
