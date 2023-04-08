@@ -1,6 +1,7 @@
 /**:
     ros__parameters:
       # LiDAR setting
+      pointCloudTopic: "points_raw"
       sensor: velodyne
       N_SCAN: 16
       Horizon_SCAN: 1800
