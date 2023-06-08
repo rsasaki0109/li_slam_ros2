@@ -150,6 +150,7 @@ if(GTSAM_FOUND)
     geometry_msgs 
     sensor_msgs
     nav_msgs
+    pcl_msgs
     #GTSAM
   )
   add_executable(image_projection src/image_projection.cpp)
@@ -163,6 +164,7 @@ if(GTSAM_FOUND)
     geometry_msgs 
     sensor_msgs
     nav_msgs
+    pcl_msgs
     #liosam_msgs
     PCL
     OpenCV
