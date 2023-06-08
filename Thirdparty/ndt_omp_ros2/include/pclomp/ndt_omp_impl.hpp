@@ -187,10 +187,10 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 	hessian.setZero();
 	double score = 0;
 
-  std::vector<double> scores(input_->points.size());
-  std::vector<Eigen::Matrix<double, 6, 1>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>> score_gradients(input_->points.size());
-  std::vector<Eigen::Matrix<double, 6, 6>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 6>>> hessians(input_->points.size());
-  for (int i = 0; i < input_->points.size(); i++) {
+  std::vector<double> scores(num_threads_);
+  std::vector<Eigen::Matrix<double, 6, 1>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>> score_gradients(num_threads_);
+  std::vector<Eigen::Matrix<double, 6, 6>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 6>>> hessians(num_threads_);
+  for (int i = 0; i < num_threads_; i++) {
 		scores[i] = 0;
 		score_gradients[i].setZero();
 		hessians[i].setZero();
@@ -269,12 +269,12 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 			score_pt += updateDerivatives(score_gradient_pt, hessian_pt, point_gradient_, point_hessian_, x_trans, c_inv, compute_hessian);
 		}
 
-		scores[idx] = score_pt;
-		score_gradients[idx].noalias() = score_gradient_pt;
-		hessians[idx].noalias() = hessian_pt;
+		scores[thread_n] += score_pt;
+		score_gradients[thread_n].noalias() += score_gradient_pt;
+		hessians[thread_n].noalias() += hessian_pt;
 	}
 
-  for (int i = 0; i < input_->points.size(); i++) {
+  for (int i = 0; i < num_threads_; i++) {
 		score += scores[i];
 		score_gradient += score_gradients[i];
 		hessian += hessians[i];
@@ -356,7 +356,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeAngleDeri
 		h_ang_c2_ << (-sx * cz - cx * sy * sz), (sx * sz - cx * sy * cz), 0;
 		h_ang_c3_ << (cx * cz - sx * sy * sz), (-sx * sy * cz - cx * sz), 0;
 
-		h_ang_d1_ << (-cy * cz), (cy * sz), (sy);
+		h_ang_d1_ << (-cy * cz), (cy * sz), (-sy);
 		h_ang_d2_ << (-sx * sy * cz), (sx * sy * sz), (sx * cy);
 		h_ang_d3_ << (cx * sy * cz), (-cx * sy * sz), (-cx * cy);
 
@@ -567,21 +567,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeHessian (
     // Find nieghbors (Radius search has been experimentally faster than direct neighbor checking.
     std::vector<TargetGridLeafConstPtr> neighborhood;
     std::vector<float> distances;
-		switch (search_method) {
-		case KDTREE:
-			target_cells_.radiusSearch(x_trans_pt, resolution_, neighborhood, distances);
-			break;
-		case DIRECT26:
-			target_cells_.getNeighborhoodAtPoint(x_trans_pt, neighborhood);
-			break;
-		default:
-		case DIRECT7:
-			target_cells_.getNeighborhoodAtPoint7(x_trans_pt, neighborhood);
-			break;
-		case DIRECT1:
-			target_cells_.getNeighborhoodAtPoint1(x_trans_pt, neighborhood);
-			break;
-		}
+    target_cells_.radiusSearch (x_trans_pt, resolution_, neighborhood, distances);
 
     for (typename std::vector<TargetGridLeafConstPtr>::iterator neighborhood_it = neighborhood.begin (); neighborhood_it != neighborhood.end (); neighborhood_it++)
     {
@@ -609,10 +595,10 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeHessian (
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename PointSource, typename PointTarget> void
-pclomp::NormalDistributionsTransform<PointSource, PointTarget>::updateHessian (Eigen::Matrix<double, 6, 6> &hessian,
-	const Eigen::Matrix<double, 3, 6> &point_gradient_,
-	const Eigen::Matrix<double, 18, 6> &point_hessian_,
-	const Eigen::Vector3d &x_trans,
+pclomp::NormalDistributionsTransform<PointSource, PointTarget>::updateHessian (Eigen::Matrix<double, 6, 6> &hessian, 
+	const Eigen::Matrix<double, 3, 6> &point_gradient_, 
+	const Eigen::Matrix<double, 18, 6> &point_hessian_, 
+	const Eigen::Vector3d &x_trans, 
 	const Eigen::Matrix3d &c_inv) const
 {
   Eigen::Vector3d cov_dxd_pi;
@@ -814,7 +800,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeStepLengt
   double g_u = auxilaryFunction_dPsiMT (d_phi_0, d_phi_0, mu);
 
   // Check used to allow More-Thuente step length calculation to be skipped by making step_min == step_max
-  bool interval_converged = (step_max - step_min) < 0, open_interval = true;
+  bool interval_converged = (step_max - step_min) > 0, open_interval = true;
 
   double a_t = step_init;
   a_t = std::min (a_t, step_max);
@@ -942,21 +928,7 @@ double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculate
 		// Find nieghbors (Radius search has been experimentally faster than direct neighbor checking.
 		std::vector<TargetGridLeafConstPtr> neighborhood;
 		std::vector<float> distances;
-		switch (search_method) {
-		case KDTREE:
-			target_cells_.radiusSearch(x_trans_pt, resolution_, neighborhood, distances);
-			break;
-		case DIRECT26:
-			target_cells_.getNeighborhoodAtPoint(x_trans_pt, neighborhood);
-			break;
-		default:
-		case DIRECT7:
-			target_cells_.getNeighborhoodAtPoint7(x_trans_pt, neighborhood);
-			break;
-		case DIRECT1:
-			target_cells_.getNeighborhoodAtPoint1(x_trans_pt, neighborhood);
-			break;
-		}
+		target_cells_.radiusSearch(x_trans_pt, resolution_, neighborhood, distances);
 
 		for (typename std::vector<TargetGridLeafConstPtr>::iterator neighborhood_it = neighborhood.begin(); neighborhood_it != neighborhood.end(); neighborhood_it++)
 		{

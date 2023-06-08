@@ -40,13 +40,15 @@ git clone --recursive https://github.com/rsasaki0109/li_slam_ros2
 ```
 gtsam install
 ```
-sudo add-apt-repository ppa:borglab/gtsam-release-4.0
+sudo add-apt-repository ppa:borglab/gtsam-release-4.1
 sudo apt update
 sudo apt install libgtsam-dev libgtsam-unstable-dev
 ```
 build
 ```
 cd ~/ros2_ws
+rosdep update
+rosdep install --from-paths src --ignore-src -yr
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
