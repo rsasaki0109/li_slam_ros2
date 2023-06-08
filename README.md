@@ -1,8 +1,5 @@
 li_slam_ros2
 ====
-![foxy](https://github.com/rsasaki0109/li_slam_ros2/workflows/foxy/badge.svg)  
-
-
 
 This package is a combination of [lidarslam_ros2](https://github.com/rsasaki0109/lidarslam_ros2) and the [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM) IMU composite method.
 
