@@ -41,7 +41,7 @@
 #define PCL_REGISTRATION_IMPL_GICP_OMP_HPP_
 
 #include <atomic>
-#include <pcl/registration/boost.h>
+#include <boost/shared_ptr.hpp>
 #include <pcl/registration/exceptions.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +206,6 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::estimateRigi
   tmp_idx_tgt_ = &indices_tgt;
 
   // Optimize using forward-difference approximation LM
-  const double gradient_tol = 1e-2;
   OptimizationFunctorWithIndices functor(this);
   BFGS<OptimizationFunctorWithIndices> bfgs (functor);
   bfgs.parameters.sigma = 0.01;
@@ -227,7 +226,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::estimateRigi
     {
       break;
     }
-    result = bfgs.testGradient(gradient_tol);
+    result = bfgs.testGradient();
   } while(result == BFGSSpace::Running && inner_iterations_ < max_inner_iterations_);
   if(result == BFGSSpace::NoProgress || result == BFGSSpace::Success || inner_iterations_ == max_inner_iterations_)
   {

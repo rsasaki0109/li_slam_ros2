@@ -18,8 +18,9 @@ set(CMAKE_BUILD_TYPE "RELEASE")
 #)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
-find_package(PCL REQUIRED)
+find_package(PCL 1.12 REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -68,6 +69,7 @@ target_link_libraries(align
 
 ament_target_dependencies(align
   rclcpp
+  std_msgs
 )
 
 ############

@@ -108,7 +108,7 @@ ScanMatcherComponent::ScanMatcherComponent(const rclcpp::NodeOptions & options)
     registration_ = ndt;
 
   } else {
-    pclomp::GeneralizedIterativeClosestPoint<PointType, PointType>::Ptr
+    boost::shared_ptr<pclomp::GeneralizedIterativeClosestPoint<PointType, PointType>>
       gicp(new pclomp::GeneralizedIterativeClosestPoint<PointType, PointType>());
     gicp->setMaxCorrespondenceDistance(gicp_corr_dist_threshold);
     //gicp->setCorrespondenceRandomness(20);
