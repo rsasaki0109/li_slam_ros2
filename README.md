@@ -59,8 +59,8 @@ The other thing to note is that the speed will diverge if the voxel_grid_size is
 
 demo data(ROS1) in LIO-SAM   
 https://github.com/TixiaoShan/LIO-SAM   
-The Velodyne VLP-16 was used in this data.
-
+To use ros1 rosbag , use [rosbags](https://pypi.org/project/rosbags/).  
+The Velodyne VLP-16 was used in this data.  
 
 ```
 rviz2 -d src/li_slam_ros2/scanmatcher/rviz/lio.rviz 
@@ -71,7 +71,7 @@ ros2 launch scanmatcher lio.launch.py
 ```
 
 ```
-ros2 bag play -s rosbag_v2 walking_dataset.bag 
+ros2 bag play walking_dataset/
 ```
 
 <img src="./scanmatcher/images/li_slam.gif">
@@ -103,7 +103,7 @@ ros2 launch scanmatcher lio_bigloop.launch.py
 ```
 
 ```
-ros2 bag play -s rosbag_v2 big_loop.bag 
+ros2 bag play rosbag_v2 big_loop/
 ```
 
 
