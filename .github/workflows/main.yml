@@ -1,26 +1,23 @@
 name: build
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - humble
+      - develop
 
 jobs:
     job:
-        name: Humble-Build
-        runs-on: ubuntu-22.04
-        steps:
-            - name: ROS2 Install
+          name: Build
+          runs-on: ubuntu-22.04
+          container: ros:humble-ros-core
+          steps:
+            - name: Install Git and software-properties-common
               run: |
-                  # Ref: https://index.ros.org/doc/ros2/Installation/Humble/Linux-Install-Debians/
-                  sudo apt update && sudo apt install locales
-                  sudo locale-gen en_US en_US.UTF-8
-                  sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-                  export LANG=en_US.UTF-8
-                  sudo apt update && sudo apt install curl gnupg2 lsb-release
-                  curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-                  sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
-                  sudo apt update
-                  sudo apt install ros-humble-desktop
-                  source /opt/ros/humble/setup.bash
-            - uses: actions/checkout@v1
+                  apt-get update
+                  apt-get install -y git software-properties-common
+              shell: bash
+            - uses: actions/checkout@v2
               with:
                 submodules: true
             - name: Copy repository
@@ -29,13 +26,14 @@ jobs:
                   cp -rf . ~/ros2_ws/src/li_slam_ros2
             - name: Install gtsam
               run: |
-                  sudo add-apt-repository ppa:borglab/gtsam-release-4.1
-                  sudo apt update
-                  sudo apt install libgtsam-dev libgtsam-unstable-dev
+                  add-apt-repository ppa:borglab/gtsam-release-4.1
+                  apt update
+                  apt install libgtsam-dev libgtsam-unstable-dev
             - name: Install dependencies
               run: |
                   source /opt/ros/humble/setup.bash
-                  sudo apt install -y python3-rosdep2
+                  apt install -y python3-rosdep
+                  rosdelp init
                   rosdep update
                   cd ~/ros2_ws/src
                   rosdep install -r -y --from-paths . --ignore-src
