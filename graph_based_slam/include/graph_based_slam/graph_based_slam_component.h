@@ -142,6 +142,6 @@ private:
     std::vector < LoopEdge > loop_edges_;
 
   };
-}
+} // namespace graphslam
 
 #endif  //GS_GBS_COMPONENT_H_INCLUDED

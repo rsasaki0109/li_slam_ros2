@@ -124,6 +124,7 @@ private:
     rclcpp::Publisher < nav_msgs::msg::Odometry > ::SharedPtr odom_pub_;
 
     void initializePubSub();
+    void initializeMap(const pcl::PointCloud <pcl::PointXYZI>::Ptr & cloud_ptr, const std_msgs::msg::Header & header);
     void receiveCloud(
       const pcl::PointCloud < PointType > ::ConstPtr & input_cloud_ptr,
       const rclcpp::Time stamp);
@@ -135,7 +136,7 @@ private:
       const rclcpp::Time stamp
     );
     Eigen::Matrix4f getTransformation(const geometry_msgs::msg::Pose pose);
-    void publishMap();
+    void publishMap(const lidarslam_msgs::msg::MapArray & map_array_msg , const std::string & map_frame_id);
     void updateMap(
       const pcl::PointCloud < PointType > ::ConstPtr cloud_ptr,
       const Eigen::Matrix4f final_transformation,
