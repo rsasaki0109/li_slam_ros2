@@ -28,7 +28,7 @@ jobs:
               run: |
                   add-apt-repository ppa:borglab/gtsam-release-4.1
                   apt update
-                  apt install libgtsam-dev libgtsam-unstable-dev
+                  apt install -y libgtsam-dev libgtsam-unstable-dev
             - name: Install dependencies
               run: |
                   source /opt/ros/humble/setup.bash
