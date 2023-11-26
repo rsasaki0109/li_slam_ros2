@@ -33,7 +33,7 @@ jobs:
               run: |
                   source /opt/ros/humble/setup.bash
                   apt install -y python3-rosdep
-                  rosdelp init
+                  rosdep init
                   rosdep update
                   cd ~/ros2_ws/src
                   rosdep install -r -y --from-paths . --ignore-src
