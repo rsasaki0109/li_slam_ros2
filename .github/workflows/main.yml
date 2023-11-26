@@ -37,6 +37,7 @@ jobs:
                   rosdep update
                   cd ~/ros2_ws/src
                   rosdep install -r -y --from-paths . --ignore-src
+              shell: bash
             - name: Build packages
               run: |
                   source /opt/ros/humble/setup.bash
@@ -46,3 +47,4 @@ jobs:
                   cd ~/ros2_ws
                   colcon build
                   source ~/ros2_ws/install/setup.bash
+              shell: bash
