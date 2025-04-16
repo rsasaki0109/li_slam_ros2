@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-    job:
+    humble:
           name: Build
           runs-on: ubuntu-22.04
           container: ros:humble-ros-core
@@ -41,6 +41,48 @@ jobs:
             - name: Build packages
               run: |
                   source /opt/ros/humble/setup.bash
+                  # Install colcon
+                  # Ref: https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/
+                  sudo apt install -y python3-colcon-common-extensions
+                  cd ~/ros2_ws
+                  colcon build
+                  source ~/ros2_ws/install/setup.bash
+              shell: bash
+
+    jazzy:
+          name: Build
+          runs-on: ubuntu-24.04
+          container: ros:jazzy-ros-core
+          steps:
+            - name: Install Git and software-properties-common
+              run: |
+                  apt-get update
+                  apt-get install -y git software-properties-common
+              shell: bash
+            - uses: actions/checkout@v2
+              with:
+                submodules: true
+            - name: Copy repository
+              run: |
+                  mkdir -p ~/ros2_ws/src/li_slam_ros2
+                  cp -rf . ~/ros2_ws/src/li_slam_ros2
+            - name: Install gtsam
+              run: |
+                  add-apt-repository ppa:borglab/gtsam-release-4.1
+                  apt update
+                  apt install -y libgtsam-dev libgtsam-unstable-dev
+            - name: Install dependencies
+              run: |
+                  source /opt/ros/jazzy/setup.bash
+                  apt install -y python3-rosdep
+                  rosdep init
+                  rosdep update
+                  cd ~/ros2_ws/src
+                  rosdep install -r -y --from-paths . --ignore-src
+              shell: bash
+            - name: Build packages
+              run: |
+                  source /opt/ros/jazzy/setup.bash
                   # Install colcon
                   # Ref: https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/
                   sudo apt install -y python3-colcon-common-extensions
