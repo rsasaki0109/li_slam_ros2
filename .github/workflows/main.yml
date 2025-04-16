@@ -68,7 +68,7 @@ jobs:
                   cp -rf . ~/ros2_ws/src/li_slam_ros2
             - name: Install gtsam
               run: |
-                  add-apt-repository ppa:borglab/gtsam-release-4.1
+                  add-apt-repository ppa:borglab/gtsam-release-4.2
                   apt update
                   apt install -y libgtsam-dev libgtsam-unstable-dev
             - name: Install dependencies
