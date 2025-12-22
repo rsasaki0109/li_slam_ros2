@@ -150,6 +150,7 @@ if(GTSAM_FOUND)
     geometry_msgs 
     sensor_msgs
     nav_msgs
+    pcl_conversions
     pcl_msgs
     #GTSAM
   )
@@ -165,6 +166,7 @@ if(GTSAM_FOUND)
     sensor_msgs
     nav_msgs
     pcl_msgs
+    pcl_conversions
     #liosam_msgs
     PCL
     OpenCV
